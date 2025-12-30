@@ -10,7 +10,7 @@
 leesuchan_backend/
 ├── account/          # Account Aggregate
 ├── activity/         # Activity Aggregate (거래내역)
-├── common/           # 공통 모듈 (ApiResponse, Error, AggregateRoot)
+├── common/           # 공통 모듈 (ApiResponse, Error)
 ├── service/          # 웹 계층 (Controller)
 └── infra/            # 인프라 계층
     ├── database/     # JPA 영속성
@@ -21,7 +21,7 @@ leesuchan_backend/
 ### DDD 설계
 - **Account Aggregate**: 계좌, 잔액, 일일 한도 관리
 - **Activity Aggregate**: 거래 내역 (입금/출금/이체)
-- **Aggregate Root**: `AbstractAggregateRoot` 상속, 소프트 삭제 지원
+- **Aggregate Root**: JPA Entity로 직접 구현 (Spring AbstractAggregateRoot 미사용)
 
 ### CQRS
 - **Command**: account/service (등록, 삭제, 입금, 출금, 이체)
@@ -41,6 +41,205 @@ leesuchan_backend/
 docker-compose up -d
 ./gradlew :service:bootRun
 ```
+
+---
+
+## 코딩 컨벤션 (Coding Conventions)
+
+### 1. 빈 등록 (Bean Registration)
+
+#### UseCase (서비스)
+```java
+@Service
+public class RegisterAccountUseCase {
+    private final AccountRepository accountRepository;
+
+    // 생성자 주입 (생성자가 하나인 경우 @Autowired 생략 가능)
+    public RegisterAccountUseCase(AccountRepository accountRepository) {
+        this.accountRepository = accountRepository;
+    }
+}
+```
+- `@Service` 어노테이션 사용
+- `@RequiredArgsConstructor` 대신 명시적 생성자 주입
+- 생성자가 하나인 경우 `@Autowired` 생략 가능
+
+#### Repository 구현체
+```java
+@Repository
+public class AccountRepositoryImpl implements AccountRepository {
+    private final AccountJpaRepository jpaRepository;
+
+    // 생성자 주입
+    public AccountRepositoryImpl(AccountJpaRepository jpaRepository) {
+        this.jpaRepository = jpaRepository;
+    }
+}
+```
+- `@Repository` 어노테이션 사용
+- Port 인터페이스 구현
+- 생성자 주입 방식
+
+#### Controller
+```java
+@RestController
+@RequestMapping("/api/accounts")
+public class AccountController {
+    private final RegisterAccountUseCase registerAccountUseCase;
+
+    // 생성자 주입
+    public AccountController(RegisterAccountUseCase registerAccountUseCase) {
+        this.registerAccountUseCase = registerAccountUseCase;
+    }
+}
+```
+- `@RestController` 사용
+- 생성자 주입 방식
+
+### 2. 도메인 예외 (Domain Exceptions)
+
+#### 도메인 예외 정의
+```java
+public class InvalidAccountNameException extends DomainException {
+    public InvalidAccountNameException(String message) {
+        super(AccountErrorCode.INVALID_NAME);
+    }
+}
+```
+- 모든 도메인 예외는 `DomainException` 상속
+- `ErrorCode`는 상수 인터페이스로 관리 (`AccountErrorCode`)
+
+#### 에러 코드 정의
+```java
+public interface AccountErrorCode extends ErrorCode {
+    ErrorCode NOT_FOUND = of("ACCOUNT_001", "계좌를 찾을 수 없습니다.");
+    ErrorCode DUPLICATE = of("ACCOUNT_002", "이미 존재하는 계좌번호입니다.");
+    // ...
+}
+```
+
+#### 엔티티에서 도메인 예외 사용
+```java
+@Entity
+public class Account {
+    Account(String accountNumber, String accountName, Long balance) {
+        if (accountName == null || accountName.isBlank()) {
+            throw new InvalidAccountNameException("계좌명은 비어있을 수 없습니다.");
+        }
+        // ...
+    }
+}
+```
+- 도메인 로직 검증 실패 시 `DomainException` 상속 예외 사용
+- `IllegalArgumentException`은 간단한 값 검증에만 제한적 사용
+
+### 3. Value Object (YAGNI 원칙)
+
+#### VO 사용 기준
+- **과하게 사용하지 않음** (YAGNI: You Aren't Gonna Need It)
+- 정말 필요한 경우에만 VO 사용: 검증 로직이 복잡하거나 도메인에 특별한 의미가 있는 경우
+- 계좌번호, 잔액 등은 `String`, `Long` 등 기본 타입으로 충분
+
+#### 일반적인 경우 (String 사용)
+```java
+@Entity
+public class Account {
+    @Column(name = "account_number", unique = true, nullable = false, length = 20)
+    private String accountNumber;
+
+    @Column(name = "balance", nullable = false)
+    private Long balance;
+
+    private static void validateAccountNumber(String accountNumber) {
+        if (accountNumber == null || accountNumber.isBlank()) {
+            throw new IllegalArgumentException("계좌번호는 비어있을 수 없습니다.");
+        }
+        if (accountNumber.length() < 3 || accountNumber.length() > 20) {
+            throw new IllegalArgumentException("계좌번호는 3~20자여야 합니다.");
+        }
+    }
+}
+```
+
+### 4. record vs class
+
+#### record 사용 (DTO)
+```java
+// API Request/Response DTO
+public record RegisterAccountDto(
+    @NotBlank(message = "계좌번호는 필수입니다.")
+    String accountNumber,
+    @NotBlank(message = "계좌명은 필수입니다.")
+    String accountName
+) {}
+
+public record AccountResponse(
+    Long id,
+    String accountNumber,
+    String accountName,
+    Long balance,
+    LocalDateTime createdAt,
+    LocalDateTime updatedAt
+) {
+    public static AccountResponse from(Account account) {
+        return new AccountResponse(
+            account.getId(),
+            account.getAccountNumber(),
+            // ...
+        );
+    }
+}
+```
+- **불변 데이터 전달 객체**: `record` 사용
+- Request/Response DTO, 내부 전달 객체
+- record 접근: `request.accountNumber()` (getter 아님)
+
+#### class 사용 (Entity, 팩토리)
+```java
+// JPA Entity
+@Entity
+public class Account {
+    // JPA 제약으로 class 사용
+}
+
+// 팩토리 메서드 패턴이 필요한 경우
+public class Status {
+    private Status(boolean success, String code, String message) { ... }
+    public static Status success() { ... }
+    public static Status error(String code) { ... }
+}
+```
+- **JPA Entity**: `class` 사용 (JPA 제약)
+- **팩토리 메서드 패턴**: `class` 사용
+- **내부 상태 캡슐화**가 필요한 경우
+
+### 5. Setter 금지
+
+#### 엔티티
+```java
+@Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Account {
+    private Long balance;
+
+    // ❌ 금지: setter 사용
+    // public void setBalance(Long balance) { ... }
+
+    // ✅ 올바른: 도메인 메서드로 상태 변경
+    public void deposit(long amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("금액은 0보다 커야 합니다.");
+        }
+        this.balance += amount;
+    }
+}
+```
+- 모든 필드는 불변 또는 패키지 private
+- 상태 변경은 도메인 메서드로만 (`deposit()`, `withdraw()` 등)
+- JPA를 위한 `@NoArgsConstructor(access = AccessLevel.PROTECTED)` 허용
+
+---
 
 ## 커밋 규칙 (Commit Convention)
 
