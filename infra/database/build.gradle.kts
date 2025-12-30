@@ -1,4 +1,5 @@
 dependencies {
+    implementation(project(":common"))
     implementation(project(":account"))
     implementation(project(":activity"))
 
