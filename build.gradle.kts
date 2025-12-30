@@ -13,13 +13,20 @@ subprojects {
     apply(plugin = "java")
     apply(plugin = "io.spring.dependency-management")
 
+    the<io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension>().apply {
+        imports {
+            mavenBom("org.springframework.boot:spring-boot-dependencies:3.2.0")
+        }
+    }
+
     repositories {
         mavenCentral()
     }
 
+    val lombok = "1.18.30"
     dependencies {
-        compileOnly("org.projectlombok:lombok")
-        annotationProcessor("org.projectlombok:lombok")
+        compileOnly("org.projectlombok:lombok:${lombok}")
+        annotationProcessor("org.projectlombok:lombok:${lombok}")
     }
 
     tasks.withType<JavaCompile> {
