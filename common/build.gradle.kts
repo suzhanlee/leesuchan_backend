@@ -1,3 +1,8 @@
+plugins {
+    id("io.spring.dependency-management")
+}
+
 dependencies {
-    // 순수 자바, 다른 모듈 의존 없음
+    implementation("org.springframework.data:spring-data-commons")
+    implementation("org.springframework:spring-web")
 }
