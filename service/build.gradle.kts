@@ -9,13 +9,7 @@ dependencies {
     implementation(project(":infra:database"))
 
     implementation("org.springframework.boot:spring-boot-starter-web")
-}
+    implementation("org.springframework.boot:spring-boot-starter-validation")
 
-// bootJar 비활성화 (아직 main class 없음)
-tasks.bootJar {
-    enabled = false
-}
-
-tasks.jar {
-    enabled = true
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
