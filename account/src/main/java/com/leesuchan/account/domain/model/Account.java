@@ -1,5 +1,6 @@
 package com.leesuchan.account.domain.model;
 
+import com.leesuchan.account.domain.exception.DailyWithdrawLimitExceededException;
 import com.leesuchan.account.domain.exception.InsufficientBalanceException;
 import com.leesuchan.account.domain.exception.InvalidAccountNameException;
 import jakarta.persistence.*;
@@ -7,6 +8,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -33,6 +35,18 @@ public class Account {
 
     @Column(name = "balance", nullable = false)
     private Long balance;
+
+    @Column(name = "daily_withdraw_amount", nullable = false)
+    private Long dailyWithdrawAmount = 0L;
+
+    @Column(name = "daily_transfer_amount", nullable = false)
+    private Long dailyTransferAmount = 0L;
+
+    @Column(name = "last_withdraw_date")
+    private LocalDate lastWithdrawDate;
+
+    @Column(name = "last_transfer_date")
+    private LocalDate lastTransferDate;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -100,11 +114,38 @@ public class Account {
         if (amount <= 0) {
             throw new IllegalArgumentException("금액은 0보다 커야 합니다.");
         }
+        checkDailyWithdrawLimit(amount);
+        checkSufficientBalance(amount);
+
+        this.balance -= amount;
+        this.dailyWithdrawAmount += amount;
+        this.lastWithdrawDate = LocalDate.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    /**
+     * 일일 출금 한도 체크 (1,000,000원)
+     */
+    private void checkDailyWithdrawLimit(long amount) {
+        LocalDate today = LocalDate.now();
+        // 날짜가 바뀌면 한도 리셋
+        if (this.lastWithdrawDate == null || !this.lastWithdrawDate.equals(today)) {
+            this.dailyWithdrawAmount = 0L;
+            this.lastWithdrawDate = today;
+        }
+        // 누적 + 현재 금액이 한도 초과 시 예외
+        if (this.dailyWithdrawAmount + amount > 1_000_000L) {
+            throw new DailyWithdrawLimitExceededException();
+        }
+    }
+
+    /**
+     * 잔액 확인
+     */
+    private void checkSufficientBalance(long amount) {
         if (this.balance < amount) {
             throw new InsufficientBalanceException();
         }
-        this.balance -= amount;
-        this.updatedAt = LocalDateTime.now();
     }
 
     /**
