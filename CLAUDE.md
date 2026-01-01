@@ -239,6 +239,108 @@ public class Account {
 - 상태 변경은 도메인 메서드로만 (`deposit()`, `withdraw()` 등)
 - JPA를 위한 `@NoArgsConstructor(access = AccessLevel.PROTECTED)` 허용
 
+### 6. 테스트 작성 (Test)
+
+#### UseCase 단위 테스트
+```java
+@ExtendWith(MockitoExtension.class)
+@DisplayName("DeleteAccountUseCase 테스트")
+class DeleteAccountUseCaseTest {
+
+    @Mock
+    private AccountRepository accountRepository;
+
+    private DeleteAccountUseCase deleteAccountUseCase;
+
+    @BeforeEach
+    void setUp() {
+        deleteAccountUseCase = new DeleteAccountUseCase(accountRepository);
+    }
+
+    @Test
+    @DisplayName("계좌를 삭제한다")
+    void delete_account() {
+        // given
+        String accountNumber = "1234567890";
+        doNothing().when(accountRepository).deleteByAccountNumber(any());
+
+        // when
+        deleteAccountUseCase.delete(accountNumber);
+
+        // then
+        verify(accountRepository).deleteByAccountNumber(eq(accountNumber));
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 계좌를 삭제하면 예외가 발생한다")
+    void delete_not_exist_account_throws_exception() {
+        // given
+        String accountNumber = "1234567890";
+        doThrow(AccountNotFoundException.class).when(accountRepository).deleteByAccountNumber(any());
+
+        // when & then
+        assertThatThrownBy(() -> deleteAccountUseCase.delete(accountNumber))
+                .isInstanceOf(AccountNotFoundException.class);
+        verify(accountRepository).deleteByAccountNumber(eq(accountNumber));
+    }
+}
+```
+- `@ExtendWith(MockitoExtension.class)` 사용
+- `@Mock`으로 의존성 주입
+- given-when-then 패턴 사용
+- `doNothing()`, `doThrow()`로 Mock 설정
+- AssertJ `assertThatThrownBy()`로 예외 검증
+
+#### Controller E2E 테스트
+```java
+@SpringBootTest
+@AutoConfigureMockMvc
+@DisplayName("계좌 삭제 E2E 테스트")
+class DeleteAccountE2ETest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private DeleteAccountUseCase deleteAccountUseCase;
+
+    @MockBean
+    private RegisterAccountUseCase registerAccountUseCase;
+
+    @BeforeEach
+    void setUp() {
+        reset(deleteAccountUseCase);
+    }
+
+    @Test
+    @DisplayName("계좌를 삭제하는 API를 호출한다")
+    void delete_account_api() throws Exception {
+        // given
+        String accountNumber = "1234567890";
+        doNothing().when(deleteAccountUseCase).delete(any());
+
+        // when & then
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/accounts/{accountNumber}", accountNumber))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status.success").value(true))
+                .andExpect(jsonPath("$.status.code").value("SUCCESS"))
+                .andExpect(jsonPath("$.data").isEmpty());
+
+        verify(deleteAccountUseCase).delete(eq(accountNumber));
+    }
+}
+```
+- `@SpringBootTest` + `@AutoConfigureMockMvc` 사용
+  - `@WebMvcTest`는 JPA EntityManagerFactory 로드하지 않아 @EnableJpaRepositories와 충돌
+- `@MockBean`으로 UseCase Mock 주입
+- `MockMvc`로 HTTP 요청/응답 테스트
+- `jsonPath()`로 JSON 응답 검증
+
+#### 테스트 명명 규칙
+- 클래스명: `XxxTest` (단위 테스트), `XxxE2ETest` (E2E 테스트)
+- 메서드명: snake_case, 한국어 @DisplayName 사용
+- `@DisplayName`에 "~~~한다" 형태로 기대 동작 작성
+
 ---
 
 ## 커밋 규칙 (Commit Convention)

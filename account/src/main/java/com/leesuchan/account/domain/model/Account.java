@@ -1,5 +1,6 @@
 package com.leesuchan.account.domain.model;
 
+import com.leesuchan.account.domain.exception.InsufficientBalanceException;
 import com.leesuchan.account.domain.exception.InvalidAccountNameException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -100,7 +101,7 @@ public class Account {
             throw new IllegalArgumentException("금액은 0보다 커야 합니다.");
         }
         if (this.balance < amount) {
-            throw new com.leesuchan.account.domain.exception.InsufficientBalanceException();
+            throw new InsufficientBalanceException();
         }
         this.balance -= amount;
         this.updatedAt = LocalDateTime.now();

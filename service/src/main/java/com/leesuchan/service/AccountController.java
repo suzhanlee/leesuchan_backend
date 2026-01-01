@@ -1,6 +1,7 @@
 package com.leesuchan.service;
 
 import com.leesuchan.account.domain.model.Account;
+import com.leesuchan.account.service.DeleteAccountUseCase;
 import com.leesuchan.account.service.RegisterAccountUseCase;
 import com.leesuchan.common.response.ApiResponse;
 import com.leesuchan.service.dto.AccountResponse;
@@ -16,12 +17,14 @@ import org.springframework.web.bind.annotation.*;
 public class AccountController {
 
     private final RegisterAccountUseCase registerAccountUseCase;
+    private final DeleteAccountUseCase deleteAccountUseCase;
 
     /**
      * 생성자 주입 (생성자가 하나인 경우 @Autowired 생략 가능)
      */
-    public AccountController(RegisterAccountUseCase registerAccountUseCase) {
+    public AccountController(RegisterAccountUseCase registerAccountUseCase, DeleteAccountUseCase deleteAccountUseCase) {
         this.registerAccountUseCase = registerAccountUseCase;
+        this.deleteAccountUseCase = deleteAccountUseCase;
     }
 
     /**
@@ -39,6 +42,15 @@ public class AccountController {
     @GetMapping("/{accountNumber}")
     public ApiResponse<AccountResponse> getAccount(@PathVariable String accountNumber) {
         // TODO: 구현 필요
+        return ApiResponse.success(null);
+    }
+
+    /**
+     * 계좌 삭제
+     */
+    @DeleteMapping("/{accountNumber}")
+    public ApiResponse<Void> deleteAccount(@PathVariable String accountNumber) {
+        deleteAccountUseCase.delete(accountNumber);
         return ApiResponse.success(null);
     }
 }
