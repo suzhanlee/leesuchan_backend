@@ -1,0 +1,24 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: leesuchan-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root1234
+      MYSQL_DATABASE: leesuchan
+      MYSQL_USER: leesuchan
+      MYSQL_PASSWORD: leesuchan1234
+      TZ: Asia/Seoul
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - leesuchan-network
+
+volumes:
+  mysql-data:
+    driver: local
+
+networks:
+  leesuchan-network:
+    driver: bridge
