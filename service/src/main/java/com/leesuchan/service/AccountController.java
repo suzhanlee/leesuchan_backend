@@ -4,10 +4,12 @@ import com.leesuchan.account.domain.model.Account;
 import com.leesuchan.account.service.DeleteAccountUseCase;
 import com.leesuchan.account.service.DepositMoneyUseCase;
 import com.leesuchan.account.service.RegisterAccountUseCase;
+import com.leesuchan.account.service.WithdrawMoneyUseCase;
 import com.leesuchan.common.response.ApiResponse;
 import com.leesuchan.service.dto.AccountResponse;
 import com.leesuchan.service.dto.DepositDto;
 import com.leesuchan.service.dto.RegisterAccountDto;
+import com.leesuchan.service.dto.WithdrawDto;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +23,7 @@ public class AccountController {
     private final RegisterAccountUseCase registerAccountUseCase;
     private final DeleteAccountUseCase deleteAccountUseCase;
     private final DepositMoneyUseCase depositMoneyUseCase;
+    private final WithdrawMoneyUseCase withdrawMoneyUseCase;
 
     /**
      * 생성자 주입 (생성자가 하나인 경우 @Autowired 생략 가능)
@@ -28,11 +31,13 @@ public class AccountController {
     public AccountController(
             RegisterAccountUseCase registerAccountUseCase,
             DeleteAccountUseCase deleteAccountUseCase,
-            DepositMoneyUseCase depositMoneyUseCase
+            DepositMoneyUseCase depositMoneyUseCase,
+            WithdrawMoneyUseCase withdrawMoneyUseCase
     ) {
         this.registerAccountUseCase = registerAccountUseCase;
         this.deleteAccountUseCase = deleteAccountUseCase;
         this.depositMoneyUseCase = depositMoneyUseCase;
+        this.withdrawMoneyUseCase = withdrawMoneyUseCase;
     }
 
     /**
@@ -50,6 +55,15 @@ public class AccountController {
     @PostMapping("/deposit")
     public ApiResponse<AccountResponse> deposit(@Valid @RequestBody DepositDto request) {
         Account account = depositMoneyUseCase.execute(request.accountNumber(), request.amount());
+        return ApiResponse.success(AccountResponse.from(account));
+    }
+
+    /**
+     * 출금
+     */
+    @PostMapping("/withdraw")
+    public ApiResponse<AccountResponse> withdraw(@Valid @RequestBody WithdrawDto request) {
+        Account account = withdrawMoneyUseCase.execute(request.accountNumber(), request.amount());
         return ApiResponse.success(AccountResponse.from(account));
     }
 
