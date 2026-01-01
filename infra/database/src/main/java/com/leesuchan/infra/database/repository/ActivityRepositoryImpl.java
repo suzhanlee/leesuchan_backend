@@ -26,4 +26,9 @@ public class ActivityRepositoryImpl implements ActivityRepository {
     public List<Activity> findByAccountId(Long accountId) {
         return jpaRepository.findByAccountId(accountId);
     }
+
+    @Override
+    public List<Activity> findByAccountIdOrderByCreatedAtDesc(Long accountId) {
+        return jpaRepository.findByAccountIdOrderByCreatedAtDesc(accountId);
+    }
 }
