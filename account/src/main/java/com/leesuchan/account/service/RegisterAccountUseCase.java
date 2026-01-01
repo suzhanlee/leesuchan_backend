@@ -4,6 +4,7 @@ import com.leesuchan.account.domain.exception.DuplicateAccountException;
 import com.leesuchan.account.domain.model.Account;
 import com.leesuchan.account.domain.repository.AccountRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 계좌 등록 유스케이스
@@ -28,7 +29,8 @@ public class RegisterAccountUseCase {
      * @return 등록된 계좌
      * @throws DuplicateAccountException 중복 계좌번호일 경우
      */
-    public Account register(String accountNumber, String accountName) {
+    @Transactional
+    public Account execute(String accountNumber, String accountName) {
         if (accountRepository.existsByAccountNumber(accountNumber)) {
             throw new DuplicateAccountException();
         }
@@ -40,7 +42,8 @@ public class RegisterAccountUseCase {
     /**
      * DTO를 사용한 계좌 등록
      */
-    public Account register(RegisterAccountRequest request) {
-        return register(request.accountNumber(), request.accountName());
+    @Transactional
+    public Account execute(RegisterAccountRequest request) {
+        return execute(request.accountNumber(), request.accountName());
     }
 }
