@@ -25,7 +25,7 @@ public class Activity {
     private Long accountId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "activity_type", nullable = false, length = 20)
+    @Column(name = "activity_type", nullable = false)
     private ActivityType activityType;
 
     @Column(name = "amount", nullable = false)

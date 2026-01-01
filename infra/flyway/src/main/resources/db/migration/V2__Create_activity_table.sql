@@ -1,7 +1,7 @@
 CREATE TABLE activity (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     account_id BIGINT NOT NULL,
-    activity_type VARCHAR(20) NOT NULL,
+    activity_type ENUM('DEPOSIT', 'WITHDRAW', 'TRANSFER_OUT', 'TRANSFER_IN') NOT NULL,
     amount BIGINT NOT NULL,
     fee BIGINT NOT NULL DEFAULT 0,
     balance_after BIGINT NOT NULL,
