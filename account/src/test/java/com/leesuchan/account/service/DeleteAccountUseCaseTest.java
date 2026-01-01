@@ -36,7 +36,7 @@ class DeleteAccountUseCaseTest {
         doNothing().when(accountRepository).deleteByAccountNumber(any());
 
         // when
-        deleteAccountUseCase.delete(accountNumber);
+        deleteAccountUseCase.execute(accountNumber);
 
         // then
         verify(accountRepository).deleteByAccountNumber(eq(accountNumber));
@@ -50,7 +50,7 @@ class DeleteAccountUseCaseTest {
         doThrow(AccountNotFoundException.class).when(accountRepository).deleteByAccountNumber(any());
 
         // when & then
-        assertThatThrownBy(() -> deleteAccountUseCase.delete(accountNumber))
+        assertThatThrownBy(() -> deleteAccountUseCase.execute(accountNumber))
                 .isInstanceOf(AccountNotFoundException.class);
         verify(accountRepository).deleteByAccountNumber(eq(accountNumber));
     }

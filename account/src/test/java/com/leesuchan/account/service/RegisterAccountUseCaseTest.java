@@ -38,7 +38,7 @@ class RegisterAccountUseCaseTest {
         when(accountRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
-        Account account = registerAccountUseCase.register(accountNumber, accountName);
+        Account account = registerAccountUseCase.execute(accountNumber, accountName);
 
         // then
         assertThat(account.getAccountNumber()).isEqualTo(accountNumber);
@@ -57,7 +57,7 @@ class RegisterAccountUseCaseTest {
         when(accountRepository.existsByAccountNumber(any())).thenReturn(true);
 
         // when & then
-        assertThatThrownBy(() -> registerAccountUseCase.register(accountNumber, accountName))
+        assertThatThrownBy(() -> registerAccountUseCase.execute(accountNumber, accountName))
                 .isInstanceOf(DuplicateAccountException.class);
         verify(accountRepository, never()).save(any(Account.class));
     }
@@ -73,7 +73,7 @@ class RegisterAccountUseCaseTest {
         when(accountRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
-        Account account = registerAccountUseCase.register(request);
+        Account account = registerAccountUseCase.execute(request);
 
         // then
         assertThat(account.getAccountNumber()).isEqualTo(accountNumber);
