@@ -40,7 +40,7 @@ class DeleteAccountE2ETest {
     void delete_account_api() throws Exception {
         // given
         String accountNumber = "1234567890";
-        doNothing().when(deleteAccountUseCase).delete(any());
+        doNothing().when(deleteAccountUseCase).execute(any());
 
         // when & then
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/accounts/{accountNumber}", accountNumber))
@@ -49,6 +49,6 @@ class DeleteAccountE2ETest {
                 .andExpect(jsonPath("$.status.code").value("SUCCESS"))
                 .andExpect(jsonPath("$.data").isEmpty());
 
-        verify(deleteAccountUseCase).delete(eq(accountNumber));
+        verify(deleteAccountUseCase).execute(eq(accountNumber));
     }
 }

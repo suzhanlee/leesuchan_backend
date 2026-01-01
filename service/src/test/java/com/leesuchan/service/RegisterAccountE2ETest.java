@@ -44,7 +44,7 @@ class RegisterAccountE2ETest {
                 """;
 
         Account mockAccount = Account.create("1234567890", "테스트 계좌");
-        when(registerAccountUseCase.register("1234567890", "테스트 계좌")).thenReturn(mockAccount);
+        when(registerAccountUseCase.execute("1234567890", "테스트 계좌")).thenReturn(mockAccount);
 
         // when & then
         mockMvc.perform(MockMvcRequestBuilders.post("/api/accounts")
