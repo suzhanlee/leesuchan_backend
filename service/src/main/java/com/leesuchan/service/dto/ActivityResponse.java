@@ -25,7 +25,7 @@ public record ActivityResponse(
                 activity.getAmount(),
                 activity.getFee(),
                 activity.getBalanceAfter(),
-                activity.getReferenceAccountNumber(),
+                activity.getTransactionReference() != null ? activity.getTransactionReference().getAccountNumber() : null,
                 activity.getDescription(),
                 activity.getCreatedAt()
         );
