@@ -115,12 +115,12 @@ public class Activity {
      */
     public static Activity transferOut(
             Long accountId,
+            Long referenceAccountId,
+            String referenceAccountNumber,
             Long amount,
             Long fee,
             Long balanceAfter,
-            String transactionId,
-            Long referenceAccountId,
-            String referenceAccountNumber
+            String transactionId
     ) {
         return new Activity(
                 accountId,
@@ -140,11 +140,11 @@ public class Activity {
      */
     public static Activity transferIn(
             Long accountId,
+            Long referenceAccountId,
+            String referenceAccountNumber,
             Long amount,
             Long balanceAfter,
-            String transactionId,
-            Long referenceAccountId,
-            String referenceAccountNumber
+            String transactionId
     ) {
         return new Activity(
                 accountId,
