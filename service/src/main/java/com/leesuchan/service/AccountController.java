@@ -6,6 +6,8 @@ import com.leesuchan.account.service.DepositMoneyUseCase;
 import com.leesuchan.account.service.RegisterAccountUseCase;
 import com.leesuchan.account.service.TransferMoneyUseCase;
 import com.leesuchan.account.service.WithdrawMoneyUseCase;
+import com.leesuchan.service.GetAccountQueryService;
+import com.leesuchan.service.GetAccountsQueryService;
 import com.leesuchan.common.response.ApiResponse;
 import com.leesuchan.service.dto.AccountResponse;
 import com.leesuchan.account.service.TransferMoneyUseCase.TransferResult;
@@ -16,6 +18,9 @@ import com.leesuchan.service.dto.TransferDto;
 import com.leesuchan.service.dto.TransferResponse;
 import com.leesuchan.service.dto.WithdrawDto;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,6 +38,8 @@ public class AccountController {
     private final WithdrawMoneyUseCase withdrawMoneyUseCase;
     private final TransferMoneyUseCase transferMoneyUseCase;
     private final GetActivitiesQueryService getActivitiesQueryService;
+    private final GetAccountQueryService getAccountQueryService;
+    private final GetAccountsQueryService getAccountsQueryService;
 
     /**
      * 생성자 주입 (생성자가 하나인 경우 @Autowired 생략 가능)
@@ -43,7 +50,9 @@ public class AccountController {
             DepositMoneyUseCase depositMoneyUseCase,
             WithdrawMoneyUseCase withdrawMoneyUseCase,
             TransferMoneyUseCase transferMoneyUseCase,
-            GetActivitiesQueryService getActivitiesQueryService
+            GetActivitiesQueryService getActivitiesQueryService,
+            GetAccountQueryService getAccountQueryService,
+            GetAccountsQueryService getAccountsQueryService
     ) {
         this.registerAccountUseCase = registerAccountUseCase;
         this.deleteAccountUseCase = deleteAccountUseCase;
@@ -51,6 +60,19 @@ public class AccountController {
         this.withdrawMoneyUseCase = withdrawMoneyUseCase;
         this.transferMoneyUseCase = transferMoneyUseCase;
         this.getActivitiesQueryService = getActivitiesQueryService;
+        this.getAccountQueryService = getAccountQueryService;
+        this.getAccountsQueryService = getAccountsQueryService;
+    }
+
+    /**
+     * 계좌 목록 조회
+     */
+    @GetMapping
+    public ApiResponse<Page<AccountResponse>> getAccounts(
+            @PageableDefault(size = 20) Pageable pageable
+    ) {
+        Page<AccountResponse> accounts = getAccountsQueryService.execute(pageable);
+        return ApiResponse.success(accounts);
     }
 
     /**
@@ -102,8 +124,8 @@ public class AccountController {
      */
     @GetMapping("/{accountNumber}")
     public ApiResponse<AccountResponse> getAccount(@PathVariable String accountNumber) {
-        // TODO: 구현 필요
-        return ApiResponse.success(null);
+        AccountResponse response = getAccountQueryService.execute(accountNumber);
+        return ApiResponse.success(response);
     }
 
     /**

@@ -3,6 +3,8 @@ package com.leesuchan.infra.database.repository;
 import com.leesuchan.account.domain.exception.AccountNotFoundException;
 import com.leesuchan.account.domain.model.Account;
 import com.leesuchan.account.domain.repository.AccountRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -48,5 +50,10 @@ public class AccountRepositoryImpl implements AccountRepository {
                 .orElseThrow(AccountNotFoundException::new);
         account.delete();
         jpaRepository.save(account);
+    }
+
+    @Override
+    public Page<Account> findAll(Pageable pageable) {
+        return jpaRepository.findAllByDeletedAtIsNull(pageable);
     }
 }

@@ -2,6 +2,7 @@ dependencies {
     implementation(project(":common"))
     implementation(project(":activity"))
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("jakarta.validation:jakarta.validation-api")
 
     testImplementation("org.junit.jupiter:junit-jupiter")
