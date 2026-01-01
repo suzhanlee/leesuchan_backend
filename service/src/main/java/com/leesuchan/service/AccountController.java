@@ -32,7 +32,7 @@ public class AccountController {
      */
     @PostMapping
     public ApiResponse<AccountResponse> register(@Valid @RequestBody RegisterAccountDto request) {
-        Account account = registerAccountUseCase.register(request.accountNumber(), request.accountName());
+        Account account = registerAccountUseCase.execute(request.accountNumber(), request.accountName());
         return ApiResponse.success(AccountResponse.from(account));
     }
 
@@ -50,7 +50,7 @@ public class AccountController {
      */
     @DeleteMapping("/{accountNumber}")
     public ApiResponse<Void> deleteAccount(@PathVariable String accountNumber) {
-        deleteAccountUseCase.delete(accountNumber);
+        deleteAccountUseCase.execute(accountNumber);
         return ApiResponse.success(null);
     }
 }
