@@ -1,4 +1,4 @@
-package com.leesuchan.service;
+package com.leesuchan.service.web;
 
 import com.leesuchan.account.domain.exception.AccountNotFoundException;
 import com.leesuchan.common.response.ApiResponse;

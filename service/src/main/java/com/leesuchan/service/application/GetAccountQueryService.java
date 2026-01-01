@@ -1,9 +1,9 @@
-package com.leesuchan.service;
+package com.leesuchan.service.application;
 
 import com.leesuchan.account.domain.exception.AccountNotFoundException;
 import com.leesuchan.account.domain.model.Account;
 import com.leesuchan.account.domain.repository.AccountRepository;
-import com.leesuchan.service.dto.AccountResponse;
+import com.leesuchan.service.dto.response.AccountResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

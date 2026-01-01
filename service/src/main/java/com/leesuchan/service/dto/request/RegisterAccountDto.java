@@ -1,4 +1,4 @@
-package com.leesuchan.service.dto;
+package com.leesuchan.service.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

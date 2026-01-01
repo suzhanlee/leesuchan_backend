@@ -11,7 +11,14 @@ leesuchan_backend/
 ├── account/          # Account Aggregate
 ├── activity/         # Activity Aggregate (거래내역)
 ├── common/           # 공통 모듈 (ApiResponse, Error)
-├── service/          # 웹 계층 (Controller)
+├── service/          # 웹 계층 (Controller, Application Service)
+│   ├── controller/   # REST Controller (@RestController)
+│   ├── application/  # Query Service (CQRS Query)
+│   ├── web/          # Exception Handler
+│   ├── config/       # 설정 (Swagger, Security 등)
+│   └── dto/          # Request/Response DTO
+│       ├── request/  # API Request DTO
+│       └── response/ # API Response DTO
 └── infra/            # 인프라 계층
     ├── database/     # JPA 영속성
     ├── external/     # 외부 API 연동
@@ -40,6 +47,45 @@ leesuchan_backend/
 ```bash
 docker-compose up -d
 ./gradlew :service:bootRun
+```
+
+## API 문서화 (Swagger/OpenAPI)
+
+### Swagger UI 접속
+```
+http://localhost:8080/swagger-ui.html
+```
+
+### @Schema 어노테이션 사용
+
+#### DTO에 @Schema 추가
+```java
+public record DepositDto(
+    @Schema(description = "계좌번호", example = "1234567890", required = true)
+    @NotBlank(message = "계좌번호는 필수입니다.")
+    String accountNumber,
+
+    @Schema(description = "입금 금액 (원 단위)", example = "10000", required = true)
+    @Positive(message = "금액은 0보다 커야 합니다.")
+    Long amount
+) {}
+```
+
+#### Enum에 allowableValues 명시
+```java
+@Schema(description = "거래 유형", allowableValues = {"DEPOSIT", "WITHDRAW", "TRANSFER_OUT", "TRANSFER_IN"})
+public enum ActivityType {
+    DEPOSIT,        // 입금
+    WITHDRAW,       // 출금
+    TRANSFER_OUT,   // 이체 (출금)
+    TRANSFER_IN     // 이체 (입금)
+}
+```
+
+### SpringDoc 의존성
+```kotlin
+// build.gradle.kts
+implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
 ```
 
 ---
@@ -84,6 +130,7 @@ public class AccountRepositoryImpl implements AccountRepository {
 ```java
 @RestController
 @RequestMapping("/api/accounts")
+@Tag(name = "계좌 관리", description = "계좌 등록/조회/삭제 API")
 public class AccountController {
     private final RegisterAccountUseCase registerAccountUseCase;
 
@@ -91,10 +138,41 @@ public class AccountController {
     public AccountController(RegisterAccountUseCase registerAccountUseCase) {
         this.registerAccountUseCase = registerAccountUseCase;
     }
+
+    @Operation(summary = "계좌 등록", description = "새로운 계좌를 등록합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "계좌 등록 성공"),
+        @ApiResponse(responseCode = "400", description = "요청 파라미터 유효성 검증 실패")
+    })
+    @PostMapping
+    public ApiResponse<AccountResponse> register(@Valid @RequestBody RegisterAccountDto request) {
+        // ...
+    }
 }
 ```
-- `@RestController` 사용
+- 패키지: `service.controller`
+- `@RestController` + `@RequestMapping` 사용
 - 생성자 주입 방식
+- `@Tag`, `@Operation`, `@ApiResponses`로 Swagger 문서화
+
+#### Query Service (CQRS)
+```java
+@Service
+public class GetAccountQueryService {
+    private final AccountRepository accountRepository;
+
+    public GetAccountQueryService(AccountRepository accountRepository) {
+        this.accountRepository = accountRepository;
+    }
+
+    public AccountResponse execute(String accountNumber) {
+        // ...
+    }
+}
+```
+- 패키지: `service.application`
+- 조회 전용 서비스 (CQRS Query)
+- `@Service` 어노테이션 사용
 
 ### 2. 도메인 예외 (Domain Exceptions)
 
@@ -165,20 +243,35 @@ public class Account {
 
 #### record 사용 (DTO)
 ```java
-// API Request/Response DTO
+// API Request DTO (service.dto.request)
 public record RegisterAccountDto(
+    @Schema(description = "계좌번호", example = "1234567890", required = true)
     @NotBlank(message = "계좌번호는 필수입니다.")
     String accountNumber,
+
+    @Schema(description = "계좌명", example = "홍길동", required = true)
     @NotBlank(message = "계좌명은 필수입니다.")
     String accountName
 ) {}
 
+// API Response DTO (service.dto.response)
 public record AccountResponse(
+    @Schema(description = "계좌 ID", example = "1")
     Long id,
+
+    @Schema(description = "계좌번호", example = "1234567890")
     String accountNumber,
+
+    @Schema(description = "계좌명", example = "홍길동")
     String accountName,
+
+    @Schema(description = "잔액 (원 단위)", example = "100000")
     Long balance,
+
+    @Schema(description = "생성일시", example = "2026-01-01T12:00:00")
     LocalDateTime createdAt,
+
+    @Schema(description = "수정일시", example = "2026-01-01T12:30:00")
     LocalDateTime updatedAt
 ) {
     public static AccountResponse from(Account account) {
@@ -191,7 +284,9 @@ public record AccountResponse(
 }
 ```
 - **불변 데이터 전달 객체**: `record` 사용
-- Request/Response DTO, 내부 전달 객체
+- Request DTO 패키지: `service.dto.request`
+- Response DTO 패키지: `service.dto.response`
+- `@Schema` 어노테이션으로 Swagger 문서화
 - record 접근: `request.accountNumber()` (getter 아님)
 
 #### class 사용 (Entity, 팩토리)
@@ -335,6 +430,45 @@ class DeleteAccountE2ETest {
 - `@MockBean`으로 UseCase Mock 주입
 - `MockMvc`로 HTTP 요청/응답 테스트
 - `jsonPath()`로 JSON 응답 검증
+
+#### Query Service 단위 테스트
+```java
+@ExtendWith(MockitoExtension.class)
+@DisplayName("GetAccountQueryService 테스트")
+class GetAccountQueryServiceTest {
+
+    @Mock
+    private AccountRepository accountRepository;
+
+    private GetAccountQueryService getAccountQueryService;
+
+    @BeforeEach
+    void setUp() {
+        getAccountQueryService = new GetAccountQueryService(accountRepository);
+    }
+
+    @Test
+    @DisplayName("계좌를 조회한다")
+    void get_account() {
+        // given
+        String accountNumber = "1234567890";
+        Account account = Account.create(accountNumber, "테스트 계좌");
+
+        when(accountRepository.findByAccountNumber(accountNumber))
+            .thenReturn(Optional.of(account));
+
+        // when
+        AccountResponse response = getAccountQueryService.execute(accountNumber);
+
+        // then
+        assertThat(response.accountNumber()).isEqualTo(accountNumber);
+        verify(accountRepository).findByAccountNumber(accountNumber);
+    }
+}
+```
+- 패키지: `service.application`
+- 조회 전용 서비스 단위 테스트
+- `@ExtendWith(MockitoExtension.class)` 사용
 
 #### 테스트 명명 규칙
 - 클래스명: `XxxTest` (단위 테스트), `XxxE2ETest` (E2E 테스트)

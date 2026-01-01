@@ -1,4 +1,4 @@
-package com.leesuchan.service.dto;
+package com.leesuchan.service.dto.response;
 
 import com.leesuchan.activity.domain.model.Activity;
 import com.leesuchan.activity.domain.model.ActivityType;

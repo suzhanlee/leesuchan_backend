@@ -1,7 +1,8 @@
 package com.leesuchan.service;
 
 import com.leesuchan.account.domain.model.Account;
-import com.leesuchan.service.dto.AccountResponse;
+import com.leesuchan.service.application.GetAccountQueryService;
+import com.leesuchan.service.dto.response.AccountResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

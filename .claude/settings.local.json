@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew build:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(./gradlew:*)",
+      "Bash(dir \"C:\\\\Users\\\\USER\\\\IdeaProjects\\\\leesuchan_backend\")",
+      "Bash(dir \"C:\\\\Users\\\\USER\\\\IdeaProjects\\\\leesuchan_backend\\\\service\\\\src\\\\main\\\\resources\")",
+      "Bash(dir:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(powershell:*)",
+      "Bash(timeout:*)",
+      "Bash(find:*)",
+      "Bash(del:*)",
+      "Bash(grep:*)",
+      "Bash(curl:*)",
+      "Bash(docker-compose down:*)",
+      "Bash(.gradlew.bat :service:test --tests \"GetAccountQueryServiceTest\")",
+      "Bash(cat:*)",
+      "Bash(git reset:*)"
+    ]
+  }
+}

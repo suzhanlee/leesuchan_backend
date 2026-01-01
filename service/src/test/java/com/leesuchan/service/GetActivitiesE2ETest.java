@@ -7,7 +7,8 @@ import com.leesuchan.account.service.TransferMoneyUseCase;
 import com.leesuchan.account.service.WithdrawMoneyUseCase;
 import com.leesuchan.activity.domain.model.Activity;
 import com.leesuchan.activity.domain.model.ActivityType;
-import com.leesuchan.service.dto.ActivityResponse;
+import com.leesuchan.service.application.GetActivitiesQueryService;
+import com.leesuchan.service.dto.response.ActivityResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -90,7 +91,7 @@ class GetActivitiesE2ETest {
         when(getActivitiesQueryService.execute(eq(accountNumber))).thenReturn(activities);
 
         // when & then
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/accounts/{accountNumber}/activities", accountNumber))
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/activities/{accountNumber}", accountNumber))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status.success").value(true))
                 .andExpect(jsonPath("$.data").isArray())
@@ -112,7 +113,7 @@ class GetActivitiesE2ETest {
         when(getActivitiesQueryService.execute(eq(accountNumber))).thenReturn(List.of());
 
         // when & then
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/accounts/{accountNumber}/activities", accountNumber))
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/activities/{accountNumber}", accountNumber))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status.success").value(true))
                 .andExpect(jsonPath("$.data").isArray())
