@@ -150,8 +150,7 @@ class WithdrawMoneyUseCaseTest {
         // when - 첫날 100만원 출금
         withdrawMoneyUseCase.execute(accountNumber, 1_000_000L);
 
-        // then - 다음 날이 되면 한도 리셋 (도메인 로직에서 LocalDate.now()로 체크)
-        // 실제로 날짜가 바뀌지 않으므로 현재 테스트에서는 검증할 수 없음
-        assertThat(account.getDailyWithdrawAmount()).isEqualTo(1_000_000L);
+        // then - 누적 출금액 확인
+        assertThat(account.getWithdrawLimitTracker().getAccumulatedAmount()).isEqualTo(1_000_000L);
     }
 }

@@ -4,6 +4,8 @@ import com.leesuchan.account.domain.exception.DailyTransferLimitExceededExceptio
 import com.leesuchan.account.domain.exception.DailyWithdrawLimitExceededException;
 import com.leesuchan.account.domain.exception.InsufficientBalanceException;
 import com.leesuchan.account.domain.exception.InvalidAccountNameException;
+import com.leesuchan.account.domain.model.vo.TransferLimitTracker;
+import com.leesuchan.account.domain.model.vo.WithdrawLimitTracker;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -37,17 +39,17 @@ public class Account {
     @Column(name = "balance", nullable = false)
     private Long balance;
 
-    @Column(name = "daily_withdraw_amount", nullable = false)
-    private Long dailyWithdrawAmount = 0L;
+    /**
+     * 일일 출금 한도 추적기
+     */
+    @Embedded
+    private WithdrawLimitTracker withdrawLimitTracker;
 
-    @Column(name = "daily_transfer_amount", nullable = false)
-    private Long dailyTransferAmount = 0L;
-
-    @Column(name = "last_withdraw_date")
-    private LocalDate lastWithdrawDate;
-
-    @Column(name = "last_transfer_date")
-    private LocalDate lastTransferDate;
+    /**
+     * 일일 이체 한도 추적기
+     */
+    @Embedded
+    private TransferLimitTracker transferLimitTracker;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -73,6 +75,8 @@ public class Account {
         this.accountNumber = accountNumber;
         this.accountName = accountName;
         this.balance = balance;
+        this.withdrawLimitTracker = WithdrawLimitTracker.create();
+        this.transferLimitTracker = TransferLimitTracker.create();
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
         this.deletedAt = null;
@@ -115,29 +119,13 @@ public class Account {
         if (amount <= 0) {
             throw new IllegalArgumentException("금액은 0보다 커야 합니다.");
         }
-        checkDailyWithdrawLimit(amount);
         checkSufficientBalance(amount);
 
-        this.balance -= amount;
-        this.dailyWithdrawAmount += amount;
-        this.lastWithdrawDate = LocalDate.now();
-        this.updatedAt = LocalDateTime.now();
-    }
+        // VO를 통한 한도 체크 및 추적
+        withdrawLimitTracker.trackAndCheckLimit(amount, DailyWithdrawLimitExceededException::new);
 
-    /**
-     * 일일 출금 한도 체크 (1,000,000원)
-     */
-    private void checkDailyWithdrawLimit(long amount) {
-        LocalDate today = LocalDate.now();
-        // 날짜가 바뀌면 한도 리셋
-        if (this.lastWithdrawDate == null || !this.lastWithdrawDate.equals(today)) {
-            this.dailyWithdrawAmount = 0L;
-            this.lastWithdrawDate = today;
-        }
-        // 누적 + 현재 금액이 한도 초과 시 예외
-        if (this.dailyWithdrawAmount + amount > 1_000_000L) {
-            throw new DailyWithdrawLimitExceededException();
-        }
+        this.balance -= amount;
+        this.updatedAt = LocalDateTime.now();
     }
 
     /**
@@ -164,38 +152,22 @@ public class Account {
         if (amount <= 0) {
             throw new IllegalArgumentException("금액은 0보다 커야 합니다.");
         }
-        checkDailyTransferLimit(amount);
 
         long fee = calculateFee(amount);
         long totalAmount = amount + fee;
         checkSufficientBalance(totalAmount);
 
+        // VO를 통한 한도 체크 및 추적 (이체 금액만)
+        transferLimitTracker.trackAndCheckLimit(amount, DailyTransferLimitExceededException::new);
+
         // 출금 (수수료 포함)
         this.balance -= totalAmount;
-        this.dailyTransferAmount += amount;
-        this.lastTransferDate = LocalDate.now();
 
         // 입금 (수수료 없음)
         to.balance += amount;
 
         this.updatedAt = LocalDateTime.now();
         to.updatedAt = LocalDateTime.now();
-    }
-
-    /**
-     * 일일 이체 한도 체크 (3,000,000원)
-     */
-    private void checkDailyTransferLimit(long amount) {
-        LocalDate today = LocalDate.now();
-        // 날짜가 바뀌면 한도 리셋
-        if (this.lastTransferDate == null || !this.lastTransferDate.equals(today)) {
-            this.dailyTransferAmount = 0L;
-            this.lastTransferDate = today;
-        }
-        // 누적 + 현재 금액이 한도 초과 시 예외
-        if (this.dailyTransferAmount + amount > 3_000_000L) {
-            throw new DailyTransferLimitExceededException();
-        }
     }
 
     /**
