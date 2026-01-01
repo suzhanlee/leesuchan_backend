@@ -18,4 +18,9 @@ public interface ActivityRepository {
      * 특정 계좌의 모든 거래내역을 조회합니다.
      */
     List<Activity> findByAccountId(Long accountId);
+
+    /**
+     * 특정 계좌의 거래내역을 최신순으로 조회합니다.
+     */
+    List<Activity> findByAccountIdOrderByCreatedAtDesc(Long accountId);
 }
