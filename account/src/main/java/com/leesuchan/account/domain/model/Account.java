@@ -1,5 +1,6 @@
 package com.leesuchan.account.domain.model;
 
+import com.leesuchan.account.domain.exception.DailyTransferLimitExceededException;
 import com.leesuchan.account.domain.exception.DailyWithdrawLimitExceededException;
 import com.leesuchan.account.domain.exception.InsufficientBalanceException;
 import com.leesuchan.account.domain.exception.InvalidAccountNameException;
@@ -154,6 +155,54 @@ public class Account {
     public void delete() {
         this.deletedAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+    }
+
+    /**
+     * 이체
+     */
+    public void transfer(Account to, long amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("금액은 0보다 커야 합니다.");
+        }
+        checkDailyTransferLimit(amount);
+
+        long fee = calculateFee(amount);
+        long totalAmount = amount + fee;
+        checkSufficientBalance(totalAmount);
+
+        // 출금 (수수료 포함)
+        this.balance -= totalAmount;
+        this.dailyTransferAmount += amount;
+        this.lastTransferDate = LocalDate.now();
+
+        // 입금 (수수료 없음)
+        to.balance += amount;
+
+        this.updatedAt = LocalDateTime.now();
+        to.updatedAt = LocalDateTime.now();
+    }
+
+    /**
+     * 일일 이체 한도 체크 (3,000,000원)
+     */
+    private void checkDailyTransferLimit(long amount) {
+        LocalDate today = LocalDate.now();
+        // 날짜가 바뀌면 한도 리셋
+        if (this.lastTransferDate == null || !this.lastTransferDate.equals(today)) {
+            this.dailyTransferAmount = 0L;
+            this.lastTransferDate = today;
+        }
+        // 누적 + 현재 금액이 한도 초과 시 예외
+        if (this.dailyTransferAmount + amount > 3_000_000L) {
+            throw new DailyTransferLimitExceededException();
+        }
+    }
+
+    /**
+     * 수수료 계산 (1%)
+     */
+    private long calculateFee(long amount) {
+        return amount / 100;
     }
 
     public boolean isDeleted() {
