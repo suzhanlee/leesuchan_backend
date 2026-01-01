@@ -81,5 +81,57 @@ class TransferMoneyE2ETest {
         verify(transferMoneyUseCase).execute(eq("1234567890"), eq("0987654321"), eq(10000L));
     }
 
-    // TODO: Bean Validation 테스트 - 추후 수정 필요
+    @Test
+    @DisplayName("출금 계좌번호가 비어있으면 400 에러가 발생한다")
+    void transfer_empty_from_account_number_400() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/accounts/transfer")
+                        .contentType("application/json")
+                        .content("""
+                                {
+                                    "fromAccountNumber": "",
+                                    "toAccountNumber": "0987654321",
+                                    "amount": 10000
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status.success").value(false));
+
+        verify(transferMoneyUseCase, never()).execute(any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("입금 계좌번호가 비어있으면 400 에러가 발생한다")
+    void transfer_empty_to_account_number_400() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/accounts/transfer")
+                        .contentType("application/json")
+                        .content("""
+                                {
+                                    "fromAccountNumber": "1234567890",
+                                    "toAccountNumber": "",
+                                    "amount": 10000
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status.success").value(false));
+
+        verify(transferMoneyUseCase, never()).execute(any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("금액이 0 이하면 400 에러가 발생한다")
+    void transfer_zero_or_negative_amount_400() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/accounts/transfer")
+                        .contentType("application/json")
+                        .content("""
+                                {
+                                    "fromAccountNumber": "1234567890",
+                                    "toAccountNumber": "0987654321",
+                                    "amount": 0
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status.success").value(false));
+
+        verify(transferMoneyUseCase, never()).execute(any(), any(), any());
+    }
 }

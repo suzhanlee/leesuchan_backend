@@ -70,38 +70,39 @@ class DepositMoneyE2ETest {
         verify(depositMoneyUseCase).execute("1234567890", 10000L);
     }
 
-    // TODO: Bean Validation 테스트 - 추후 수정 필요
-    // @Test
-    // @DisplayName("계좌번호가 비어있으면 400 에러가 발생한다")
-    // void deposit_empty_account_number_400() throws Exception {
-    //     // when & then
-    //     mockMvc.perform(MockMvcRequestBuilders.post("/api/accounts/deposit")
-    //                     .contentType("application/json")
-    //                     .content("""
-    //                             {
-    //                                 "accountNumber": "",
-    //                                 "amount": 10000
-    //                             }
-    //                             """))
-    //             .andExpect(status().isBadRequest());
-    //
-    //     verify(depositMoneyUseCase, never()).execute(any(), any());
-    // }
-    //
-    // @Test
-    // @DisplayName("금액이 0 이하면 400 에러가 발생한다")
-    // void deposit_zero_or_negative_amount_400() throws Exception {
-    //     // when & then
-    //     mockMvc.perform(MockMvcRequestBuilders.post("/api/accounts/deposit")
-    //                     .contentType("application/json")
-    //                     .content("""
-    //                             {
-    //                                 "accountNumber": "1234567890",
-    //                                 "amount": 0
-    //                             }
-    //                             """))
-    //             .andExpect(status().isBadRequest());
-    //
-    //     verify(depositMoneyUseCase, never()).execute(any(), any());
-    // }
+    @Test
+    @DisplayName("계좌번호가 비어있으면 400 에러가 발생한다")
+    void deposit_empty_account_number_400() throws Exception {
+        // when & then
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/accounts/deposit")
+                        .contentType("application/json")
+                        .content("""
+                                {
+                                    "accountNumber": "",
+                                    "amount": 10000
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status.success").value(false));
+
+        verify(depositMoneyUseCase, never()).execute(any(), any());
+    }
+
+    @Test
+    @DisplayName("금액이 0 이하면 400 에러가 발생한다")
+    void deposit_zero_or_negative_amount_400() throws Exception {
+        // when & then
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/accounts/deposit")
+                        .contentType("application/json")
+                        .content("""
+                                {
+                                    "accountNumber": "1234567890",
+                                    "amount": 0
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status.success").value(false));
+
+        verify(depositMoneyUseCase, never()).execute(any(), any());
+    }
 }

@@ -58,4 +58,110 @@ class RegisterAccountE2ETest {
                 .andExpect(jsonPath("$.data.accountName").value("테스트 계좌"))
                 .andExpect(jsonPath("$.data.balance").value(0));
     }
+
+    @Test
+    @DisplayName("계좌번호가 비어있으면 400 에러가 발생한다")
+    void empty_account_number_400() throws Exception {
+        // given
+        String requestBody = """
+                {
+                    "accountNumber": "",
+                    "accountName": "테스트 계좌"
+                }
+                """;
+
+        // when & then
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/accounts")
+                        .contentType("application/json")
+                        .content(requestBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status.success").value(false));
+
+        verify(registerAccountUseCase, never()).execute(any(), any());
+    }
+
+    @Test
+    @DisplayName("계좌번호가 2자 이하면 400 에러가 발생한다")
+    void account_number_too_short_400() throws Exception {
+        // given
+        String requestBody = """
+                {
+                    "accountNumber": "12",
+                    "accountName": "테스트 계좌"
+                }
+                """;
+
+        // when & then
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/accounts")
+                        .contentType("application/json")
+                        .content(requestBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status.success").value(false));
+
+        verify(registerAccountUseCase, never()).execute(any(), any());
+    }
+
+    @Test
+    @DisplayName("계좌번호가 21자 이상이면 400 에러가 발생한다")
+    void account_number_too_long_400() throws Exception {
+        // given
+        String requestBody = """
+                {
+                    "accountNumber": "123456789012345678901",
+                    "accountName": "테스트 계좌"
+                }
+                """;
+
+        // when & then
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/accounts")
+                        .contentType("application/json")
+                        .content(requestBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status.success").value(false));
+
+        verify(registerAccountUseCase, never()).execute(any(), any());
+    }
+
+    @Test
+    @DisplayName("계좌명이 비어있으면 400 에러가 발생한다")
+    void empty_account_name_400() throws Exception {
+        // given
+        String requestBody = """
+                {
+                    "accountNumber": "1234567890",
+                    "accountName": ""
+                }
+                """;
+
+        // when & then
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/accounts")
+                        .contentType("application/json")
+                        .content(requestBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status.success").value(false));
+
+        verify(registerAccountUseCase, never()).execute(any(), any());
+    }
+
+    @Test
+    @DisplayName("계좌명이 100자를 초과하면 400 에러가 발생한다")
+    void account_name_too_long_400() throws Exception {
+        // given
+        String longAccountName = "a".repeat(101);
+        String requestBody = String.format("""
+                {
+                    "accountNumber": "1234567890",
+                    "accountName": "%s"
+                }
+                """, longAccountName);
+
+        // when & then
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/accounts")
+                        .contentType("application/json")
+                        .content(requestBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status.success").value(false));
+
+        verify(registerAccountUseCase, never()).execute(any(), any());
+    }
 }
