@@ -1,11 +1,19 @@
 package com.leesuchan.common.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 /**
  * API 응답 상태
  */
+@Schema(description = "API 응답 상태")
 public class Status {
+    @Schema(description = "성공 여부", example = "true")
     private final boolean success;
+
+    @Schema(description = "응답 코드", example = "SUCCESS")
     private final String code;
+
+    @Schema(description = "응답 메시지", example = "성공")
     private final String message;
 
     private Status(boolean success, String code, String message) {

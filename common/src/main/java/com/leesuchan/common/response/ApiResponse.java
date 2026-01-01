@@ -1,13 +1,20 @@
 package com.leesuchan.common.response;
 
 import com.leesuchan.common.domain.error.ErrorCode;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * 공통 API 응답 wrapper
  */
+@Schema(description = "공통 API 응답 wrapper")
 public record ApiResponse<T>(
+        @Schema(description = "응답 상태")
         Status status,
+
+        @Schema(description = "응답 데이터")
         T data,
+
+        @Schema(description = "추가 메시지")
         String message
 ) {
     public static <T> ApiResponse<T> success(T data) {
