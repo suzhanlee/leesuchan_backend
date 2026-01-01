@@ -1,5 +1,6 @@
 dependencies {
     implementation(project(":common"))
+    implementation(project(":activity"))
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("jakarta.validation:jakarta.validation-api")
 
