@@ -1,5 +1,6 @@
 package com.leesuchan.activity.domain.model;
 
+import com.leesuchan.activity.domain.model.vo.TransactionReference;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -27,8 +28,7 @@ class ActivityTest {
         assertThat(activity.getAmount()).isEqualTo(amount);
         assertThat(activity.getBalanceAfter()).isEqualTo(balanceAfter);
         assertThat(activity.getFee()).isZero();
-        assertThat(activity.getReferenceAccountId()).isNull();
-        assertThat(activity.getReferenceAccountNumber()).isNull();
+        assertThat(activity.getTransactionReference()).isNull();
         assertThat(activity.getDescription()).isNull();
         assertThat(activity.getTransactionId()).isNull();
         assertThat(activity.getCreatedAt()).isBefore(LocalDateTime.now().plusSeconds(1));
@@ -51,8 +51,7 @@ class ActivityTest {
         assertThat(activity.getAmount()).isEqualTo(amount);
         assertThat(activity.getBalanceAfter()).isEqualTo(balanceAfter);
         assertThat(activity.getFee()).isZero();
-        assertThat(activity.getReferenceAccountId()).isNull();
-        assertThat(activity.getReferenceAccountNumber()).isNull();
+        assertThat(activity.getTransactionReference()).isNull();
     }
 
     @Test
@@ -84,8 +83,9 @@ class ActivityTest {
         assertThat(activity.getAmount()).isEqualTo(amount);
         assertThat(activity.getFee()).isEqualTo(fee);
         assertThat(activity.getBalanceAfter()).isEqualTo(balanceAfter);
-        assertThat(activity.getReferenceAccountId()).isEqualTo(referenceAccountId);
-        assertThat(activity.getReferenceAccountNumber()).isEqualTo(referenceAccountNumber);
+        assertThat(activity.getTransactionReference()).isNotNull();
+        assertThat(activity.getTransactionReference().getAccountId()).isEqualTo(referenceAccountId);
+        assertThat(activity.getTransactionReference().getAccountNumber()).isEqualTo(referenceAccountNumber);
         assertThat(activity.getTransactionId()).isEqualTo(transactionId);
         assertThat(activity.getDescription()).isNull();
     }
@@ -117,10 +117,43 @@ class ActivityTest {
         assertThat(activity.getAmount()).isEqualTo(amount);
         assertThat(activity.getFee()).isZero(); // 입금자는 수수료 없음
         assertThat(activity.getBalanceAfter()).isEqualTo(balanceAfter);
-        assertThat(activity.getReferenceAccountId()).isEqualTo(referenceAccountId);
-        assertThat(activity.getReferenceAccountNumber()).isEqualTo(referenceAccountNumber);
+        assertThat(activity.getTransactionReference()).isNotNull();
+        assertThat(activity.getTransactionReference().getAccountId()).isEqualTo(referenceAccountId);
+        assertThat(activity.getTransactionReference().getAccountNumber()).isEqualTo(referenceAccountNumber);
         assertThat(activity.getTransactionId()).isEqualTo(transactionId);
         assertThat(activity.getDescription()).isNull();
+    }
+
+    @Test
+    @DisplayName("입금 Activity는 참조 정보가 없다")
+    void deposit_activity_has_no_reference() {
+        // given & when
+        Activity activity = Activity.deposit(1L, 10000L, 10000L);
+
+        // then
+        assertThat(activity.getTransactionReference()).isNull();
+    }
+
+    @Test
+    @DisplayName("출금 Activity는 참조 정보가 없다")
+    void withdraw_activity_has_no_reference() {
+        // given & when
+        Activity activity = Activity.withdraw(1L, 5000L, 5000L);
+
+        // then
+        assertThat(activity.getTransactionReference()).isNull();
+    }
+
+    @Test
+    @DisplayName("이체 Activity는 참조 정보가 있다")
+    void transfer_activity_has_reference() {
+        // given & when
+        Activity activity = Activity.transferOut(1L, 2L, "0987654321", 10000L, 100L, 39900L, "tx-12345");
+
+        // then
+        assertThat(activity.getTransactionReference()).isNotNull();
+        assertThat(activity.getTransactionReference().getAccountId()).isEqualTo(2L);
+        assertThat(activity.getTransactionReference().getAccountNumber()).isEqualTo("0987654321");
     }
 
     @Test

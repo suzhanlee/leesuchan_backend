@@ -109,10 +109,11 @@ public class ActivityRecordService {
         );
 
         // 입금 Activity
+        // 입금자에게도 상대방 계좌 정보를 표시하도록 수정
         recordTransferIn(
                 toAccountId,
                 fromAccountId,
-                null,  // 상대방 계좌번호는 입금자에게 표시하지 않음
+                toAccountNumber,  // 출금자의 계좌번호
                 amount,
                 toBalanceAfter,
                 transactionId

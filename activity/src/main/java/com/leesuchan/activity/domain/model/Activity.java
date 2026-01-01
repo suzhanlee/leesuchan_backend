@@ -1,5 +1,6 @@
 package com.leesuchan.activity.domain.model;
 
+import com.leesuchan.activity.domain.model.vo.TransactionReference;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -37,11 +38,11 @@ public class Activity {
     @Column(name = "balance_after", nullable = false)
     private Long balanceAfter;
 
-    @Column(name = "reference_account_id")
-    private Long referenceAccountId;
-
-    @Column(name = "reference_account_number", length = 20)
-    private String referenceAccountNumber;
+    /**
+     * 이체 참조 정보 (이체 시에만 값 존재)
+     */
+    @Embedded
+    private TransactionReference transactionReference;
 
     @Column(name = "description", length = 200)
     private String description;
@@ -59,8 +60,7 @@ public class Activity {
             Long amount,
             Long fee,
             Long balanceAfter,
-            Long referenceAccountId,
-            String referenceAccountNumber,
+            TransactionReference transactionReference,
             String description,
             String transactionId
     ) {
@@ -69,8 +69,7 @@ public class Activity {
         this.amount = amount;
         this.fee = fee;
         this.balanceAfter = balanceAfter;
-        this.referenceAccountId = referenceAccountId;
-        this.referenceAccountNumber = referenceAccountNumber;
+        this.transactionReference = transactionReference;
         this.description = description;
         this.transactionId = transactionId;
         this.createdAt = LocalDateTime.now();
@@ -86,8 +85,7 @@ public class Activity {
                 amount,
                 0L,  // fee = 0
                 balanceAfter,
-                null,  // referenceAccountId
-                null,  // referenceAccountNumber
+                null,  // transactionReference
                 null,  // description
                 null   // transactionId
         );
@@ -103,8 +101,7 @@ public class Activity {
                 amount,
                 0L,  // fee = 0
                 balanceAfter,
-                null,  // referenceAccountId
-                null,  // referenceAccountNumber
+                null,  // transactionReference
                 null,  // description
                 null   // transactionId
         );
@@ -128,8 +125,7 @@ public class Activity {
                 amount,
                 fee,
                 balanceAfter,
-                referenceAccountId,
-                referenceAccountNumber,
+                TransactionReference.of(referenceAccountId, referenceAccountNumber),
                 null,  // description
                 transactionId
         );
@@ -152,8 +148,7 @@ public class Activity {
                 amount,
                 0L,  // fee = 입금자는 수수료 없음
                 balanceAfter,
-                referenceAccountId,
-                referenceAccountNumber,
+                TransactionReference.of(referenceAccountId, referenceAccountNumber),
                 null,  // description
                 transactionId
         );

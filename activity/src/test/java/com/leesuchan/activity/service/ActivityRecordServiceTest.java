@@ -103,8 +103,9 @@ class ActivityRecordServiceTest {
                         activity.getAmount().equals(amount) &&
                         activity.getFee().equals(fee) &&
                         activity.getBalanceAfter().equals(balanceAfter) &&
-                        activity.getReferenceAccountId().equals(toAccountId) &&
-                        activity.getReferenceAccountNumber().equals(toAccountNumber) &&
+                        activity.getTransactionReference() != null &&
+                        activity.getTransactionReference().getAccountId().equals(toAccountId) &&
+                        activity.getTransactionReference().getAccountNumber().equals(toAccountNumber) &&
                         activity.getTransactionId().equals(transactionId)
         ));
     }
@@ -138,8 +139,9 @@ class ActivityRecordServiceTest {
                         activity.getAmount().equals(amount) &&
                         activity.getFee() == 0L && // 입금자는 수수료 없음
                         activity.getBalanceAfter().equals(balanceAfter) &&
-                        activity.getReferenceAccountId().equals(fromAccountId) &&
-                        activity.getReferenceAccountNumber().equals(fromAccountNumber) &&
+                        activity.getTransactionReference() != null &&
+                        activity.getTransactionReference().getAccountId().equals(fromAccountId) &&
+                        activity.getTransactionReference().getAccountNumber().equals(fromAccountNumber) &&
                         activity.getTransactionId().equals(transactionId)
         ));
     }
@@ -183,7 +185,9 @@ class ActivityRecordServiceTest {
                 activity.getAccountId().equals(toAccountId) &&
                         activity.getActivityType() == ActivityType.TRANSFER_IN &&
                         activity.getFee() == 0L && // 입금자는 수수료 없음
-                        activity.getReferenceAccountNumber() == null // 상대방 계좌번호는 입금자에게 표시하지 않음
+                        activity.getTransactionReference() != null &&
+                        activity.getTransactionReference().getAccountId().equals(fromAccountId) &&
+                        activity.getTransactionReference().getAccountNumber().equals(toAccountNumber)
         ));
     }
 }
