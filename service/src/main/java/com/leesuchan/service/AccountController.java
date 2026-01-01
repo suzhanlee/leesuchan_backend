@@ -2,9 +2,11 @@ package com.leesuchan.service;
 
 import com.leesuchan.account.domain.model.Account;
 import com.leesuchan.account.service.DeleteAccountUseCase;
+import com.leesuchan.account.service.DepositMoneyUseCase;
 import com.leesuchan.account.service.RegisterAccountUseCase;
 import com.leesuchan.common.response.ApiResponse;
 import com.leesuchan.service.dto.AccountResponse;
+import com.leesuchan.service.dto.DepositDto;
 import com.leesuchan.service.dto.RegisterAccountDto;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -18,13 +20,19 @@ public class AccountController {
 
     private final RegisterAccountUseCase registerAccountUseCase;
     private final DeleteAccountUseCase deleteAccountUseCase;
+    private final DepositMoneyUseCase depositMoneyUseCase;
 
     /**
      * 생성자 주입 (생성자가 하나인 경우 @Autowired 생략 가능)
      */
-    public AccountController(RegisterAccountUseCase registerAccountUseCase, DeleteAccountUseCase deleteAccountUseCase) {
+    public AccountController(
+            RegisterAccountUseCase registerAccountUseCase,
+            DeleteAccountUseCase deleteAccountUseCase,
+            DepositMoneyUseCase depositMoneyUseCase
+    ) {
         this.registerAccountUseCase = registerAccountUseCase;
         this.deleteAccountUseCase = deleteAccountUseCase;
+        this.depositMoneyUseCase = depositMoneyUseCase;
     }
 
     /**
@@ -33,6 +41,15 @@ public class AccountController {
     @PostMapping
     public ApiResponse<AccountResponse> register(@Valid @RequestBody RegisterAccountDto request) {
         Account account = registerAccountUseCase.execute(request.accountNumber(), request.accountName());
+        return ApiResponse.success(AccountResponse.from(account));
+    }
+
+    /**
+     * 입금
+     */
+    @PostMapping("/deposit")
+    public ApiResponse<AccountResponse> deposit(@Valid @RequestBody DepositDto request) {
+        Account account = depositMoneyUseCase.execute(request.accountNumber(), request.amount());
         return ApiResponse.success(AccountResponse.from(account));
     }
 
