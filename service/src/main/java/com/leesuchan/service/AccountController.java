@@ -9,6 +9,7 @@ import com.leesuchan.account.service.WithdrawMoneyUseCase;
 import com.leesuchan.common.response.ApiResponse;
 import com.leesuchan.service.dto.AccountResponse;
 import com.leesuchan.account.service.TransferMoneyUseCase.TransferResult;
+import com.leesuchan.service.dto.ActivityResponse;
 import com.leesuchan.service.dto.DepositDto;
 import com.leesuchan.service.dto.RegisterAccountDto;
 import com.leesuchan.service.dto.TransferDto;
@@ -16,6 +17,8 @@ import com.leesuchan.service.dto.TransferResponse;
 import com.leesuchan.service.dto.WithdrawDto;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 계좌 API Controller
@@ -29,6 +32,7 @@ public class AccountController {
     private final DepositMoneyUseCase depositMoneyUseCase;
     private final WithdrawMoneyUseCase withdrawMoneyUseCase;
     private final TransferMoneyUseCase transferMoneyUseCase;
+    private final GetActivitiesQueryService getActivitiesQueryService;
 
     /**
      * 생성자 주입 (생성자가 하나인 경우 @Autowired 생략 가능)
@@ -38,13 +42,15 @@ public class AccountController {
             DeleteAccountUseCase deleteAccountUseCase,
             DepositMoneyUseCase depositMoneyUseCase,
             WithdrawMoneyUseCase withdrawMoneyUseCase,
-            TransferMoneyUseCase transferMoneyUseCase
+            TransferMoneyUseCase transferMoneyUseCase,
+            GetActivitiesQueryService getActivitiesQueryService
     ) {
         this.registerAccountUseCase = registerAccountUseCase;
         this.deleteAccountUseCase = deleteAccountUseCase;
         this.depositMoneyUseCase = depositMoneyUseCase;
         this.withdrawMoneyUseCase = withdrawMoneyUseCase;
         this.transferMoneyUseCase = transferMoneyUseCase;
+        this.getActivitiesQueryService = getActivitiesQueryService;
     }
 
     /**
@@ -107,5 +113,14 @@ public class AccountController {
     public ApiResponse<Void> deleteAccount(@PathVariable String accountNumber) {
         deleteAccountUseCase.execute(accountNumber);
         return ApiResponse.success(null);
+    }
+
+    /**
+     * 거래내역 조회
+     */
+    @GetMapping("/{accountNumber}/activities")
+    public ApiResponse<List<ActivityResponse>> getActivities(@PathVariable String accountNumber) {
+        List<ActivityResponse> activities = getActivitiesQueryService.execute(accountNumber);
+        return ApiResponse.success(activities);
     }
 }
