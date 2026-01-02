@@ -30,7 +30,7 @@ leesuchan_backend/
 - **Aggregate**: Account, Activity
 - **Repository Pattern**: Port 인터페이스와 구현체 분리
 - **Domain Exception**: 도메인별 예외 체계 구현
-- **Value Object**: DailyLimitTracker 등 불변 VO 사용
+- **Value Object**: WithdrawLimitTracker, TransferLimitTracker 등 불변 VO 사용
 
 ### CQRS (Command Query Responsibility Segregation)
 - **Command**: UseCase (등록, 입금, 출금, 이체)
@@ -165,8 +165,10 @@ Swagger UI: http://localhost:8080/swagger-ui.html
 - `account_number` (UQ)
 - `account_name`
 - `balance`
-- `daily_withdraw_limit`
-- `daily_transfer_limit`
+- `daily_withdraw_amount`
+- `last_withdraw_date`
+- `daily_transfer_amount`
+- `last_transfer_date`
 - `created_at`
 - `updated_at`
 - `deleted_at` (소프트 삭제)
