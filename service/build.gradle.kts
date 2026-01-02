@@ -14,6 +14,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
 
+    implementation("org.springframework.retry:spring-retry")
+    implementation("org.springframework.boot:spring-boot-starter-aop")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("com.h2database:h2")
 }
