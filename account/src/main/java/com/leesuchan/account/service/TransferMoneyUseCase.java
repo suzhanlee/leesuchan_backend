@@ -5,6 +5,8 @@ import com.leesuchan.account.domain.exception.SameAccountTransferException;
 import com.leesuchan.account.domain.model.Account;
 import com.leesuchan.account.domain.repository.AccountRepository;
 import com.leesuchan.activity.service.ActivityRecordService;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +36,7 @@ public class TransferMoneyUseCase {
      * @return TransferResult (from 계좌, to 계좌, 수수료)
      */
     @Transactional
+    @Retryable(retryFor = OptimisticLockingFailureException.class, maxAttempts = 3)
     public TransferResult execute(String fromAccountNumber, String toAccountNumber, Long amount) {
         // 1. 두 계좌 조회
         Account from = accountRepository.findByAccountNumber(fromAccountNumber)
@@ -80,6 +83,7 @@ public class TransferMoneyUseCase {
      * DTO를 사용한 이체
      */
     @Transactional
+    @Retryable(retryFor = OptimisticLockingFailureException.class, maxAttempts = 3)
     public TransferResult execute(TransferRequest request) {
         return execute(request.fromAccountNumber(), request.toAccountNumber(), request.amount());
     }
