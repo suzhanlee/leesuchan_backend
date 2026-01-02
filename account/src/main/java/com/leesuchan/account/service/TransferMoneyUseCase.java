@@ -46,17 +46,14 @@ public class TransferMoneyUseCase {
             throw new SameAccountTransferException();
         }
 
-        // 3. 이체 수행
-        from.transfer(to, amount);
+        // 3. 이체 수행 및 수수료 수신
+        long fee = from.transfer(to, amount);
 
         // 4. 저장
         accountRepository.save(from);
         accountRepository.save(to);
 
-        // 5. 수수료 계산
-        long fee = amount / 100;
-
-        // 6. Activity 기록 (2개)
+        // 5. Activity 기록 (2개)
         String transactionId = generateTransactionId();
         activityRecordService.recordTransferOut(
                 from.getId(),
