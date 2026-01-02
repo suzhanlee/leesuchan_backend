@@ -1,5 +1,6 @@
 package com.leesuchan.account.domain.model.vo;
 
+import com.leesuchan.account.config.AccountLimitProvider;
 import jakarta.persistence.Embeddable;
 
 /**
@@ -12,7 +13,7 @@ public class TransferLimitTracker extends DailyLimitTracker {
      * JPA 기본 생성자 (protected)
      */
     protected TransferLimitTracker() {
-        super(3_000_000L); // 일일 이체 한도: 3,000,000원
+        super(AccountLimitProvider.getDailyTransferLimit());
     }
 
     /**
@@ -25,7 +26,7 @@ public class TransferLimitTracker extends DailyLimitTracker {
             try {
                 java.lang.reflect.Field limitField = DailyLimitTracker.class.getDeclaredField("dailyLimit");
                 limitField.setAccessible(true);
-                limitField.set(this, 3_000_000L);
+                limitField.set(this, AccountLimitProvider.getDailyTransferLimit());
             } catch (Exception e) {
                 throw new RuntimeException("TransferLimitTracker 초기화 실패", e);
             }

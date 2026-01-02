@@ -1,5 +1,6 @@
 package com.leesuchan.account.domain.model;
 
+import com.leesuchan.account.config.AccountLimitProvider;
 import com.leesuchan.account.domain.exception.DailyTransferLimitExceededException;
 import com.leesuchan.account.domain.exception.DailyWithdrawLimitExceededException;
 import com.leesuchan.account.domain.exception.InsufficientBalanceException;
@@ -171,10 +172,11 @@ public class Account {
     }
 
     /**
-     * 수수료 계산 (1%)
+     * 수수료 계산 (설정된 비율 적용)
      */
     private long calculateFee(long amount) {
-        return amount / 100;
+        double rate = AccountLimitProvider.getTransferFeeRate();
+        return (long) (amount * rate);
     }
 
     public boolean isDeleted() {

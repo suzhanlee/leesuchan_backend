@@ -41,6 +41,14 @@ springdoc:
     display-operation-id: true
     default-sort-by: method
 
+# 계좌 설정
+account:
+  limits:
+    daily-withdraw: 1000000  # 일일 출금 한도 (원 단위)
+    daily-transfer: 3000000  # 일일 이체 한도 (원 단위)
+  fees:
+    transfer-rate: 0.01      # 이체 수수료율 (1%)
+
 logging:
   level:
     com.leesuchan: DEBUG
