@@ -49,7 +49,7 @@ class RegisterAccountE2ETest {
         when(registerAccountUseCase.execute("1234567890", "테스트 계좌")).thenReturn(mockAccount);
 
         // when & then
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/accounts")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/accounts")
                         .contentType("application/json")
                         .content(requestBody))
                 .andExpect(status().isOk())
@@ -71,7 +71,7 @@ class RegisterAccountE2ETest {
                 """;
 
         // when & then
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/accounts")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/accounts")
                         .contentType("application/json")
                         .content(requestBody))
                 .andExpect(status().isBadRequest())
@@ -92,7 +92,7 @@ class RegisterAccountE2ETest {
                 """;
 
         // when & then
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/accounts")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/accounts")
                         .contentType("application/json")
                         .content(requestBody))
                 .andExpect(status().isBadRequest())
@@ -113,7 +113,7 @@ class RegisterAccountE2ETest {
                 """;
 
         // when & then
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/accounts")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/accounts")
                         .contentType("application/json")
                         .content(requestBody))
                 .andExpect(status().isBadRequest())
@@ -134,7 +134,7 @@ class RegisterAccountE2ETest {
                 """;
 
         // when & then
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/accounts")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/accounts")
                         .contentType("application/json")
                         .content(requestBody))
                 .andExpect(status().isBadRequest())
@@ -156,7 +156,7 @@ class RegisterAccountE2ETest {
                 """, longAccountName);
 
         // when & then
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/accounts")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/accounts")
                         .contentType("application/json")
                         .content(requestBody))
                 .andExpect(status().isBadRequest())

@@ -64,7 +64,7 @@ class WithdrawMoneyE2ETest {
         when(withdrawMoneyUseCase.execute("1234567890", 5000L)).thenReturn(mockAccount);
 
         // when & then
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/transactions/withdraw")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/transactions/withdraw")
                         .contentType("application/json")
                         .content(requestBody))
                 .andExpect(status().isOk())
@@ -78,7 +78,7 @@ class WithdrawMoneyE2ETest {
     @Test
     @DisplayName("계좌번호가 비어있으면 400 에러가 발생한다")
     void withdraw_empty_account_number_400() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/transactions/withdraw")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/transactions/withdraw")
                         .contentType("application/json")
                         .content("""
                                 {
@@ -95,7 +95,7 @@ class WithdrawMoneyE2ETest {
     @Test
     @DisplayName("금액이 0 이하면 400 에러가 발생한다")
     void withdraw_zero_or_negative_amount_400() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/transactions/withdraw")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/transactions/withdraw")
                         .contentType("application/json")
                         .content("""
                                 {

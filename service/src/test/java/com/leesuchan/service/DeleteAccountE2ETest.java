@@ -45,7 +45,7 @@ class DeleteAccountE2ETest {
         doNothing().when(deleteAccountUseCase).execute(any());
 
         // when & then
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/accounts/{accountNumber}", accountNumber))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/accounts/{accountNumber}", accountNumber))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status.success").value(true))
                 .andExpect(jsonPath("$.status.code").value("SUCCESS"))

@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @Tag(name = "거래 실행", description = "입금/출금/이체 API")
 @RestController
-@RequestMapping("/api/transactions")
+@RequestMapping("/api/v1/transactions")
 public class TransactionController {
 
     private final DepositMoneyUseCase depositMoneyUseCase;

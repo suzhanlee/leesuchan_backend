@@ -91,7 +91,7 @@ class GetActivitiesE2ETest {
         when(getActivitiesQueryService.execute(eq(accountNumber))).thenReturn(activities);
 
         // when & then
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/activities/{accountNumber}", accountNumber))
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/activities/{accountNumber}", accountNumber))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status.success").value(true))
                 .andExpect(jsonPath("$.data").isArray())
@@ -113,7 +113,7 @@ class GetActivitiesE2ETest {
         when(getActivitiesQueryService.execute(eq(accountNumber))).thenReturn(List.of());
 
         // when & then
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/activities/{accountNumber}", accountNumber))
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/activities/{accountNumber}", accountNumber))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status.success").value(true))
                 .andExpect(jsonPath("$.data").isArray())

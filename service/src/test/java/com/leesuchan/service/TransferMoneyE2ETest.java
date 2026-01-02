@@ -69,7 +69,7 @@ class TransferMoneyE2ETest {
         );
 
         // when & then
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/transactions/transfer")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/transactions/transfer")
                         .contentType("application/json")
                         .content(requestBody))
                 .andExpect(status().isOk())
@@ -84,7 +84,7 @@ class TransferMoneyE2ETest {
     @Test
     @DisplayName("출금 계좌번호가 비어있으면 400 에러가 발생한다")
     void transfer_empty_from_account_number_400() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/transactions/transfer")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/transactions/transfer")
                         .contentType("application/json")
                         .content("""
                                 {
@@ -102,7 +102,7 @@ class TransferMoneyE2ETest {
     @Test
     @DisplayName("입금 계좌번호가 비어있으면 400 에러가 발생한다")
     void transfer_empty_to_account_number_400() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/transactions/transfer")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/transactions/transfer")
                         .contentType("application/json")
                         .content("""
                                 {
@@ -120,7 +120,7 @@ class TransferMoneyE2ETest {
     @Test
     @DisplayName("금액이 0 이하면 400 에러가 발생한다")
     void transfer_zero_or_negative_amount_400() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/transactions/transfer")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/transactions/transfer")
                         .contentType("application/json")
                         .content("""
                                 {

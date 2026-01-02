@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @Tag(name = "계좌 관리", description = "계좌 CRUD API")
 @RestController
-@RequestMapping("/api/accounts")
+@RequestMapping("/api/v1/accounts")
 public class AccountController {
 
     private final RegisterAccountUseCase registerAccountUseCase;

@@ -46,7 +46,7 @@ class GetAccountE2ETest {
         when(getAccountQueryService.execute(accountNumber)).thenReturn(AccountResponse.from(mockAccount));
 
         // when & then
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/accounts/{accountNumber}", accountNumber))
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/accounts/{accountNumber}", accountNumber))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status.success").value(true))
                 .andExpect(jsonPath("$.data.accountNumber").value(accountNumber))
@@ -64,7 +64,7 @@ class GetAccountE2ETest {
         when(getAccountQueryService.execute(accountNumber)).thenThrow(new com.leesuchan.account.domain.exception.AccountNotFoundException());
 
         // when & then
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/accounts/{accountNumber}", accountNumber))
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/accounts/{accountNumber}", accountNumber))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status.success").value(false));
 

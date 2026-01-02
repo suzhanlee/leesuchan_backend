@@ -18,7 +18,7 @@ import java.util.List;
  */
 @Tag(name = "거래내역 관리", description = "거래내역 조회 API")
 @RestController
-@RequestMapping("/api/activities")
+@RequestMapping("/api/v1/activities")
 public class ActivityController {
 
     private final GetActivitiesQueryService getActivitiesQueryService;
