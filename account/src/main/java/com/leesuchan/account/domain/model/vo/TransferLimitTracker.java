@@ -2,6 +2,7 @@ package com.leesuchan.account.domain.model.vo;
 
 import com.leesuchan.account.config.AccountLimitProvider;
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.PostLoad;
 
 /**
  * 일일 이체 한도 추적 Value Object
@@ -17,21 +18,15 @@ public class TransferLimitTracker extends DailyLimitTracker {
     }
 
     /**
-     * JPA 기본 생성자용 초기화 메서드
+     * JPA 로드 후 한도 값을 초기화합니다.
+     * @Transient 필드는 DB에서 로드되지 않으므로 설정에서 값을 가져옵니다.
      */
+    @PostLoad
     @Override
-    protected void resetIfNeeded() {
+    protected void initLimit() {
         if (this.dailyLimit == null) {
-            // JPA 로딩 시 dailyLimit가 null이면 초기화
-            try {
-                java.lang.reflect.Field limitField = DailyLimitTracker.class.getDeclaredField("dailyLimit");
-                limitField.setAccessible(true);
-                limitField.set(this, AccountLimitProvider.getDailyTransferLimit());
-            } catch (Exception e) {
-                throw new RuntimeException("TransferLimitTracker 초기화 실패", e);
-            }
+            this.dailyLimit = AccountLimitProvider.getDailyTransferLimit();
         }
-        super.resetIfNeeded();
     }
 
     /**

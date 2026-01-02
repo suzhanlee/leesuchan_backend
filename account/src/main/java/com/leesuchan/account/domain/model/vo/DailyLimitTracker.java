@@ -1,5 +1,6 @@
 package com.leesuchan.account.domain.model.vo;
 
+import jakarta.persistence.PostLoad;
 import jakarta.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -27,7 +28,7 @@ public abstract class DailyLimitTracker {
      * 일일 한도 (DB에 저장되지 않음)
      */
     @Transient
-    protected final Long dailyLimit;
+    protected Long dailyLimit;
 
     /**
      * 생성자 (패키지 private)
@@ -39,6 +40,15 @@ public abstract class DailyLimitTracker {
         this.dailyLimit = dailyLimit;
         this.accumulatedAmount = 0L;
         this.lastTransactionDate = null;
+    }
+
+    /**
+     * JPA 로드 후 한도 값을 초기화합니다.
+     * @Transient 필드는 DB에서 로드되지 않으므로 서브클래스에서 오버라이드하여 초기화합니다.
+     */
+    @PostLoad
+    protected void initLimit() {
+        // 서브클래스에서 오버라이드하여 구현
     }
 
     /**
