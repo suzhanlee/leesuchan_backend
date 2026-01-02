@@ -4,6 +4,8 @@ import com.leesuchan.account.domain.exception.AccountNotFoundException;
 import com.leesuchan.account.domain.model.Account;
 import com.leesuchan.account.domain.repository.AccountRepository;
 import com.leesuchan.activity.service.ActivityRecordService;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +35,7 @@ public class DepositMoneyUseCase {
      * @throws AccountNotFoundException 계좌 미조회 시
      */
     @Transactional
+    @Retryable(retryFor = OptimisticLockingFailureException.class, maxAttempts = 3)
     public Account execute(String accountNumber, Long amount) {
         Account account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(AccountNotFoundException::new);
@@ -53,6 +56,7 @@ public class DepositMoneyUseCase {
      * DTO를 사용한 입금
      */
     @Transactional
+    @Retryable(retryFor = OptimisticLockingFailureException.class, maxAttempts = 3)
     public Account execute(DepositRequest request) {
         return execute(request.accountNumber(), request.amount());
     }
