@@ -148,8 +148,9 @@ public class Account {
 
     /**
      * 이체
+     * @return 계산된 수수료
      */
-    public void transfer(Account to, long amount) {
+    public long transfer(Account to, long amount) {
         if (amount <= 0) {
             throw new IllegalArgumentException("금액은 0보다 커야 합니다.");
         }
@@ -169,6 +170,8 @@ public class Account {
 
         this.updatedAt = LocalDateTime.now();
         to.updatedAt = LocalDateTime.now();
+
+        return fee;
     }
 
     /**
