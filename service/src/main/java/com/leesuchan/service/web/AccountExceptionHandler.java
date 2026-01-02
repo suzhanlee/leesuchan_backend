@@ -2,6 +2,7 @@ package com.leesuchan.service.web;
 
 import com.leesuchan.account.domain.exception.AccountNotFoundException;
 import com.leesuchan.common.response.ApiResponse;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * 계좌 관련 예외 처리기 (404 응답)
  */
 @RestControllerAdvice
+@Order(1)
 public class AccountExceptionHandler {
 
     /**
