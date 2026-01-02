@@ -122,11 +122,25 @@ public class Account {
         }
         checkSufficientBalance(amount);
 
-        // VO를 통한 한도 체크 및 추적
-        withdrawLimitTracker.trackAndCheckLimit(amount, DailyWithdrawLimitExceededException::new);
+        // 일일 한도 체크 및 추적
+        checkDailyWithdrawLimit(amount);
+        withdrawLimitTracker.trackAmount(amount);
 
         this.balance -= amount;
         this.updatedAt = LocalDateTime.now();
+    }
+
+    /**
+     * 일일 출금 한도 체크
+     */
+    private void checkDailyWithdrawLimit(long amount) {
+        withdrawLimitTracker.resetIfNeeded();
+        long dailyLimit = AccountLimitProvider.getDailyWithdrawLimit();
+        long newAccumulated = withdrawLimitTracker.getAccumulatedAmount() + amount;
+
+        if (newAccumulated > dailyLimit) {
+            throw new DailyWithdrawLimitExceededException();
+        }
     }
 
     /**
@@ -159,8 +173,9 @@ public class Account {
         long totalAmount = amount + fee;
         checkSufficientBalance(totalAmount);
 
-        // VO를 통한 한도 체크 및 추적 (이체 금액만)
-        transferLimitTracker.trackAndCheckLimit(amount, DailyTransferLimitExceededException::new);
+        // 일일 한도 체크 및 추적 (이체 금액만)
+        checkDailyTransferLimit(amount);
+        transferLimitTracker.trackAmount(amount);
 
         // 출금 (수수료 포함)
         this.balance -= totalAmount;
@@ -172,6 +187,19 @@ public class Account {
         to.updatedAt = LocalDateTime.now();
 
         return fee;
+    }
+
+    /**
+     * 일일 이체 한도 체크
+     */
+    private void checkDailyTransferLimit(long amount) {
+        transferLimitTracker.resetIfNeeded();
+        long dailyLimit = AccountLimitProvider.getDailyTransferLimit();
+        long newAccumulated = transferLimitTracker.getAccumulatedAmount() + amount;
+
+        if (newAccumulated > dailyLimit) {
+            throw new DailyTransferLimitExceededException();
+        }
     }
 
     /**
