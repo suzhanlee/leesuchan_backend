@@ -160,6 +160,41 @@ Swagger UI: http://localhost:8080/swagger-ui.html
 
 ## 데이터베이스 스키마
 
+### ERD
+
+```mermaid
+erDiagram
+    ACCOUNT ||--o{ ACTIVITY : "records"
+
+    ACCOUNT {
+        BIGINT id PK
+        VARCHAR account_number UK "계좌번호"
+        VARCHAR account_name "계좌명"
+        BIGINT balance "잔액"
+        BIGINT daily_withdraw_amount "일일 출금 누적액"
+        DATE last_withdraw_date "마지막 출금일"
+        BIGINT daily_transfer_amount "일일 이체 누적액"
+        DATE last_transfer_date "마지막 이체일"
+        DATETIME created_at
+        DATETIME updated_at
+        DATETIME deleted_at "소프트 삭제"
+        BIGINT version "낙관적 락"
+    }
+
+    ACTIVITY {
+        BIGINT id PK
+        BIGINT account_id FK
+        VARCHAR activity_type "DEPOSIT/WITHDRAW/TRANSFER"
+        BIGINT amount "금액"
+        BIGINT fee "수수료"
+        BIGINT balance_after "거래 후 잔액"
+        VARCHAR transaction_id "트랜잭션 ID"
+        BIGINT target_account_id "상대계좌 ID"
+        VARCHAR target_account_number "상대계좌번호"
+        DATETIME created_at
+    }
+```
+
 ### account 테이블
 - `id` (PK)
 - `account_number` (UQ)

@@ -2,7 +2,6 @@ package com.leesuchan.infra.database.repository;
 
 import com.leesuchan.activity.domain.model.Activity;
 import com.leesuchan.activity.domain.repository.ActivityRepository;
-import com.leesuchan.infra.database.jpa.ActivityJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

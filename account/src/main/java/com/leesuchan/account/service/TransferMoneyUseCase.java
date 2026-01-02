@@ -4,6 +4,7 @@ import com.leesuchan.account.domain.exception.AccountNotFoundException;
 import com.leesuchan.account.domain.exception.SameAccountTransferException;
 import com.leesuchan.account.domain.model.Account;
 import com.leesuchan.account.domain.repository.AccountRepository;
+import com.leesuchan.account.service.dto.TransferRequest;
 import com.leesuchan.activity.service.ActivityRecordService;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.retry.annotation.Retryable;

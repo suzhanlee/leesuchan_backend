@@ -6,6 +6,7 @@ import com.leesuchan.account.domain.exception.InsufficientBalanceException;
 import com.leesuchan.account.domain.exception.SameAccountTransferException;
 import com.leesuchan.account.domain.model.Account;
 import com.leesuchan.account.domain.repository.AccountRepository;
+import com.leesuchan.account.service.dto.TransferRequest;
 import com.leesuchan.activity.service.ActivityRecordService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

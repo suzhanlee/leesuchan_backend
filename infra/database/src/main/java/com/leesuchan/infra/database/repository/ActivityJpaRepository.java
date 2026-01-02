@@ -1,4 +1,4 @@
-package com.leesuchan.infra.database.jpa;
+package com.leesuchan.infra.database.repository;
 
 import com.leesuchan.activity.domain.model.Activity;
 import org.springframework.data.jpa.repository.JpaRepository;

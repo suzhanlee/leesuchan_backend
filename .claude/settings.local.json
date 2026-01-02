@@ -22,7 +22,12 @@
       "Bash(.gradlew.bat :service:test --tests \"GetAccountQueryServiceTest\")",
       "Bash(cat:*)",
       "Bash(git reset:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(docker-compose config:*)",
+      "Bash(docker-compose logs:*)",
+      "Bash(docker-compose build:*)",
+      "Bash(docker exec:*)",
+      "WebSearch"
     ]
   }
 }

@@ -1,4 +1,4 @@
-package com.leesuchan.account.service;
+package com.leesuchan.account.service.dto;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
