@@ -1,0 +1,42 @@
+# Gradle
+.gradle/
+build/
+!service/build/libs/
+gradlew
+gradlew.bat
+gradle-wrapper.jar
+
+# IntelliJ
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# VS Code
+.vscode/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Docs
+README.md
+CLAUDE.md
+*.md
+
+# Logs
+*.log
+
+# Test
+**/src/test/
+**/test-results/
+
+# HTTP Client
+*.http

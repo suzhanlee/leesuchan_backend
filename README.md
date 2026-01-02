@@ -87,11 +87,24 @@ leesuchan_backend/
 
 ## 실행 방법
 
-### Docker Compose로 실행
+### 방법 1: Docker Compose로 전체 서비스 실행 (권장)
 
 ```bash
-# 1. Docker Compose로 인프라 서비스 실행 (MySQL)
+# MySQL + 애플리케이션 한 번에 실행
 docker-compose up -d
+
+# 로그 확인
+docker-compose logs -f app
+
+# 중지
+docker-compose down
+```
+
+### 방법 2: 로컬에서 실행 (개발용)
+
+```bash
+# 1. Docker Compose로 MySQL만 실행
+docker-compose up -d mysql
 
 # 2. 애플리케이션 실행
 ./gradlew :service:bootRun

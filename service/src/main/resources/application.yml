@@ -5,10 +5,13 @@ spring:
   application:
     name: leesuchan-backend
 
+  profiles:
+    active: local
+
   datasource:
-    url: jdbc:mysql://localhost:3306/leesuchan?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
-    username: leesuchan
-    password: leesuchan1234
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:leesuchan}?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USER:leesuchan}
+    password: ${MYSQL_PASSWORD:leesuchan1234}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 10
